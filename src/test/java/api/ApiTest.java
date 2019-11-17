@@ -1,5 +1,7 @@
 package api;
 
+import api.checks.RegexBodyChecker;
+import api.checks.StandardCodeChecker;
 import org.junit.jupiter.api.Test;
 
 public class ApiTest {
@@ -23,6 +25,7 @@ public class ApiTest {
             //cookies
             .withUrl("https://www.kp.ru/")
             .withMethod(HttpMethod.GET)
+            .withBodyChecker(new RegexBodyChecker("<a href=\"(http)|(https)://www.kp.ru/\""))
             .withCodeChecker(StandardCodeChecker.STATUS_200)
             .execute(7);
     }

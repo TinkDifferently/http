@@ -1,5 +1,9 @@
 package api;
 
+import api.checks.DefaultCodeChecker;
+import api.checks.IBodyChecker;
+import api.checks.ICodeChecker;
+import api.checks.StandardCodeChecker;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,7 +11,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -24,6 +27,7 @@ public class ApiConnection {
     private URL requestUrl;
     private IBodyProvider requestBodyProvider;
     private ICodeChecker codeChecker;
+    private IBodyChecker bodyChecker;
     private String requestMethod;
     private Map<String, String> requestHeaders;
     private Map<String, String> requestCookies;
@@ -131,6 +135,8 @@ public class ApiConnection {
                         send(connector);
                         codeChecker.check(connector.getResponseCode());
                         extractBody(connector);
+                        if (bodyChecker!=null)
+                        bodyChecker.check(responseBody.get());
                         extractCookies(connector);
                         isExecuted=true;
                     } catch (UnknownHostException e){
@@ -174,6 +180,11 @@ public class ApiConnection {
 
     public ApiConnection withCodeChecker(ICodeChecker codeChecker){
         this.codeChecker=codeChecker;
+        return this;
+    }
+
+    public ApiConnection withBodyChecker(IBodyChecker bodyChecker){
+        this.bodyChecker=bodyChecker;
         return this;
     }
 

@@ -1,4 +1,6 @@
-package api;
+package api.checks;
+
+import api.checks.ICodeChecker;
 
 public class DefaultCodeChecker implements ICodeChecker {
 

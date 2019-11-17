@@ -1,4 +1,4 @@
-package api;
+package api.checks;
 
 @FunctionalInterface
 public interface ICodeChecker {

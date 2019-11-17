@@ -1,8 +1,10 @@
-package api;
+package api.checks;
+
+import api.checks.ICodeChecker;
 
 public enum StandardCodeChecker {
     STATUS_200("STATUS_200"), STATUS_404("STATUS_404"), STATUS_502("STATUS_502"), DOMAIN_EXISTS("DOMAIN_EXISTS");
-    class StandardCodeCheckerImpl implements ICodeChecker{
+    class StandardCodeCheckerImpl implements ICodeChecker {
         private int expectedCode;
         StandardCodeCheckerImpl(int expectedCode){
             this.expectedCode=expectedCode;
