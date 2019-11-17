@@ -7,21 +7,23 @@ public class ApiTest {
     public void testA(){
         new ApiConnection()
             .withUrl("https://www.kpsfsdf.ru/")
+            .withCodeChecker()
             // Supplier<String>
-            .withBody("body")
+            .withBodyProvider(new RandomBodyProvider(12))
             //
             .withMethod(HttpMethod.GET)
             //многопоточка
-            .execute(9)
+            .execute(1)
+            .withBody("body")
             .withUrl("https://www.kp.ru/fsdfs")
+            .withCodeChecker(StandardCodeChecker.STATUS_200)
             .withMethod(HttpMethod.GET)
             .execute(3)
             //codechecker
-            .checkCode(404)
             //cookies
             .withUrl("https://www.kp.ru/")
             .withMethod(HttpMethod.GET)
-            .execute(7)
-            .checkCode(200);
+            .withCodeChecker(StandardCodeChecker.STATUS_200)
+            .execute(7);
     }
 }

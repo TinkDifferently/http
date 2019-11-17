@@ -22,7 +22,8 @@ public class ApiConnection {
      */
     private String url;
     private URL requestUrl;
-    private String requestBody;
+    private IBodyProvider requestBodyProvider;
+    private ICodeChecker codeChecker;
     private String requestMethod;
     private Map<String, String> requestHeaders;
     private Map<String, String> requestCookies;
@@ -58,10 +59,21 @@ public class ApiConnection {
         return this;
     }
 
+    private void badVarArg(Object... objects){
+
+    }
+
     public ApiConnection withBody(String body){
         if (body==null)
             isBad=true;
-        requestBody=body;
+        requestBodyProvider= () -> body;
+        return this;
+    }
+
+    public ApiConnection withBodyProvider(IBodyProvider bodyProvider){
+        if (bodyProvider==null)
+            isBad=true;
+        requestBodyProvider= bodyProvider;
         return this;
     }
 
@@ -84,8 +96,9 @@ public class ApiConnection {
     }
 
     private void send(HttpURLConnection connection) throws IOException {
+        System.out.println(requestBodyProvider.provide());
         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-        writer.write(requestBody);
+        writer.write(requestBodyProvider.provide());
         writer.close();
     }
 
@@ -116,7 +129,7 @@ public class ApiConnection {
                     var connector=getConnector();
                     try {
                         send(connector);
-                        responseCode.set(connector.getResponseCode());
+                        codeChecker.check(connector.getResponseCode());
                         extractBody(connector);
                         extractCookies(connector);
                         isExecuted=true;
@@ -155,15 +168,29 @@ public class ApiConnection {
         return execute();
     }
 
-    public ApiConnection checkCode(int code){
-        if (!isExecuted) {
-            System.out.println("request was not executed");
-            return this;
-        }
-        String msg=code==responseCode.get()
-            ? "it's ok"
-            : "fail";
-        System.out.println(msg);
+    public ApiConnection withCodeChecker(){
+        return withCodeChecker(new DefaultCodeChecker());
+    }
+
+    public ApiConnection withCodeChecker(ICodeChecker codeChecker){
+        this.codeChecker=codeChecker;
         return this;
     }
+
+    public ApiConnection withCodeChecker(StandardCodeChecker codeChecker){
+        this.codeChecker=codeChecker.checker;
+        return this;
+    }
+
+//    public ApiConnection checkCode(int code){
+//        if (!isExecuted) {
+//            System.out.println("request was not executed");
+//            return this;
+//        }
+//        String msg=code==responseCode.get()
+//            ? "it's ok"
+//            : "fail";
+//        System.out.println(msg);
+//        return this;
+//    }
 }
