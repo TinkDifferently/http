@@ -7,6 +7,7 @@ public class ApiTest {
     public void testA(){
         new Connection().withUrl("https://www.kp.ru/")
             .withBody("body")
-            .checkCode(200);
+            .execute()
+            .checkCode(201);
     }
 }

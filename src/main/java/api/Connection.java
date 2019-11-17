@@ -27,9 +27,13 @@ public class Connection {
      * internal
      */
     private HttpClient client;
+    private boolean isBad;
+    private boolean isExecuted;
 
     public Connection(){
         requestHeaders=new HashMap<>();
+        isBad=false;
+        isExecuted=false;
         responseCode=200;
     }
 
@@ -39,11 +43,14 @@ public class Connection {
             requestUrl=new URL(url);
         } catch (MalformedURLException e) {
             System.out.println("bad url");
+            isBad=true;
         }
         return this;
     }
 
     public Connection withBody(String body){
+        if (body==null)
+            isBad=true;
         requestBody=body;
         return this;
     }
@@ -53,7 +60,21 @@ public class Connection {
         return this;
     }
 
+    public Connection execute(){
+        if (!isBad)
+            isExecuted = true;
+        else {
+            isExecuted=false;
+            System.out.println("can not execute request");
+        }
+        return this;
+    }
+
     public Connection checkCode(int code){
+        if (!isExecuted) {
+            System.out.println("request was not executed");
+            return this;
+        }
         String msg=code==responseCode
             ? "it's ok"
             : "fail";
