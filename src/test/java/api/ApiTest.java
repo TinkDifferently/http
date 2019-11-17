@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Test;
 public class ApiTest {
     @Test
     public void testA(){
-        new Connection().withUrl("https://www.kp.ru/")
+        new ApiConnection()
+            .withUrl("https://www.kp.ru/")
             .withBody("body")
+            .withMethod(HttpMethod.GET)
             .execute()
-            .checkCode(201);
+            .checkCode(200);
     }
 }
