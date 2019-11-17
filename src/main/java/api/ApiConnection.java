@@ -1,20 +1,17 @@
 package api;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import sun.net.www.protocol.http.Handler;
 
 public class ApiConnection {
     /*
@@ -76,6 +73,38 @@ public class ApiConnection {
         return this;
     }
 
+
+    public ApiConnection execute(int number){
+        return execute();
+    }
+
+    private HttpURLConnection getConnector() throws IOException {
+        HttpURLConnection connection= (HttpURLConnection) new URL(url).openConnection();
+        connection.setRequestMethod(requestMethod);
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        return connection;
+    }
+
+    private void send(HttpURLConnection connection) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+        writer.write(requestBody);
+        writer.close();
+    }
+
+    private void extractBody(HttpURLConnection connection) throws IOException {
+        InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+        BufferedReader r = new BufferedReader(reader);
+        StringBuilder builder = new StringBuilder();
+        r.lines().forEach(builder::append);
+        responseBody=builder.toString();
+        System.out.println(responseBody);
+    }
+
+    private void extractCookies(HttpURLConnection connection){
+
+    }
+
     public ApiConnection execute(){
         if (isBad) {
             isExecuted = false;
@@ -83,22 +112,13 @@ public class ApiConnection {
             return this;
         }
         try {
-            HttpURLConnection connection= (HttpURLConnection) new URL(url).openConnection();
-            connection.setRequestMethod(requestMethod);
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
+            var connector=getConnector();
             try {
-                OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                writer.write(requestBody);
-                writer.close();
-                responseCode=connection.getResponseCode();
-                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-                BufferedReader r = new BufferedReader(reader);
-                StringBuilder builder = new StringBuilder();
-                r.lines().forEach(builder::append);
-                connection.getHeaderFields();
+                send(connector);
+                responseCode=connector.getResponseCode();
+                extractBody(connector);
+                extractCookies(connector);
                 isExecuted=true;
-                System.out.println(builder.toString());
             } catch (UnknownHostException e){
                 System.out.println("Хост не существует");
                 isExecuted=false;

@@ -7,16 +7,21 @@ public class ApiTest {
     public void testA(){
         new ApiConnection()
             .withUrl("https://www.kpsfsdf.ru/")
+            // Supplier<String>
             .withBody("body")
+            //
             .withMethod(HttpMethod.GET)
-            .execute()
+            //многопоточка
+            .execute(90)
             .withUrl("https://www.kp.ru/fsdfs")
             .withMethod(HttpMethod.GET)
-            .execute()
-            .checkCode(403)
+            .execute(280)
+            //codechecker
+            .checkCode(404)
+            //cookies
             .withUrl("https://www.kp.ru/")
             .withMethod(HttpMethod.GET)
             .execute()
-            .checkCode(201);
+            .checkCode(200);
     }
 }
