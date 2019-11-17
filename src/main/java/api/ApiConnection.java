@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import sun.net.www.protocol.http.Handler;
@@ -75,29 +76,32 @@ public class ApiConnection {
     }
 
     public ApiConnection execute(){
+        if (isBad) {
+            isExecuted = false;
+            System.out.println("can not execute request");
+            return this;
+        }
         try {
             URLConnection connection= new URL(url).openConnection();
             connection.setDoOutput(true);
             connection.setDoInput(true);
-            OutputStreamWriter writer=new OutputStreamWriter(connection.getOutputStream());
-            writer.write(requestBody);
-            writer.close();
-            InputStreamReader reader=new InputStreamReader(connection.getInputStream());
-            BufferedReader r=new BufferedReader(reader);
-            StringBuilder builder=new StringBuilder();
-            r.lines().forEach(builder::append);
-            connection.getHeaderFields();
-            System.out.println(builder.toString());
-
-
+            try {
+                OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                writer.write(requestBody);
+                writer.close();
+                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+                BufferedReader r = new BufferedReader(reader);
+                StringBuilder builder = new StringBuilder();
+                r.lines().forEach(builder::append);
+                connection.getHeaderFields();
+                isExecuted=true;
+                System.out.println(builder.toString());
+            } catch (UnknownHostException e){
+                System.out.println("Хост не существует");
+                isExecuted=false;
+            }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        if (!isBad)
-            isExecuted = true;
-        else {
-            isExecuted=false;
-            System.out.println("can not execute request");
         }
         return this;
     }
