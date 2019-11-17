@@ -12,16 +12,16 @@ public class ApiTest {
             //
             .withMethod(HttpMethod.GET)
             //многопоточка
-            .execute(90)
+            .execute(9)
             .withUrl("https://www.kp.ru/fsdfs")
             .withMethod(HttpMethod.GET)
-            .execute(280)
+            .execute(3)
             //codechecker
             .checkCode(404)
             //cookies
             .withUrl("https://www.kp.ru/")
             .withMethod(HttpMethod.GET)
-            .execute()
+            .execute(7)
             .checkCode(200);
     }
 }
