@@ -9,15 +9,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.CookieManager;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class ApiConnection {
     /*
@@ -116,7 +120,19 @@ public class ApiConnection {
     }
 
     private void extractCookies(HttpURLConnection connection){
-
+        Map<String, List<String>> headerFields=connection.getHeaderFields();
+        List<String> cookies=headerFields.get("Set-Cookie");
+        if (cookies.size()==0)
+            return;
+        CookieManager manager=new CookieManager();
+        for (String cookie: cookies){
+            manager.getCookieStore().add(null, HttpCookie.parse(cookie).get(0));
+        }
+//        connection.setRequestProperty("Cookie",
+//            manager.getCookieStore()
+//                .getCookies().stream()
+//                .map(HttpCookie::getValue)
+//                .collect(Collectors.joining(";")));
     }
 
     private Supplier<Thread> runProvider=()->new Thread(){
