@@ -2,10 +2,12 @@ package api;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -13,7 +15,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import sun.net.www.protocol.http.Handler;
-import sun.net.www.protocol.http.HttpURLConnection;
 
 public class ApiConnection {
     /*
@@ -44,7 +45,7 @@ public class ApiConnection {
         requestHeaders=new HashMap<>();
         isBad=false;
         isExecuted=false;
-        responseCode=200;
+        responseCode=-1;
     }
 
     public ApiConnection withUrl(String url){
@@ -82,13 +83,15 @@ public class ApiConnection {
             return this;
         }
         try {
-            URLConnection connection= new URL(url).openConnection();
+            HttpURLConnection connection= (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod(requestMethod);
             connection.setDoOutput(true);
             connection.setDoInput(true);
             try {
                 OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
                 writer.write(requestBody);
                 writer.close();
+                responseCode=connection.getResponseCode();
                 InputStreamReader reader = new InputStreamReader(connection.getInputStream());
                 BufferedReader r = new BufferedReader(reader);
                 StringBuilder builder = new StringBuilder();
@@ -99,6 +102,10 @@ public class ApiConnection {
             } catch (UnknownHostException e){
                 System.out.println("Хост не существует");
                 isExecuted=false;
+            }
+            catch (FileNotFoundException e){
+                System.out.println("Ресурс не существует");
+                isExecuted=true;
             }
         } catch (IOException e) {
             e.printStackTrace();

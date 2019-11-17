@@ -10,9 +10,13 @@ public class ApiTest {
             .withBody("body")
             .withMethod(HttpMethod.GET)
             .execute()
+            .withUrl("https://www.kp.ru/fsdfs")
+            .withMethod(HttpMethod.GET)
+            .execute()
+            .checkCode(403)
             .withUrl("https://www.kp.ru/")
             .withMethod(HttpMethod.GET)
             .execute()
-            .checkCode(200);
+            .checkCode(201);
     }
 }
